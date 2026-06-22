@@ -11,6 +11,7 @@ Fokus utama SET/30 adalah angka besar, kontrol yang mudah ditekan, dan peringata
 - Tombol mulai, jeda, lanjut, dan reset berukuran besar.
 - Peringatan bertahap pada 15, 10, dan 5 detik terakhir.
 - Bunyi bip yang semakin cepat menjelang waktu habis.
+- File audio lokal yang dipreload dan dibuka melalui interaksi pengguna agar lebih andal di Safari iPhone.
 - Kedipan hijau, kuning, dan merah yang dapat dimatikan.
 - Running text `TIME'S UP` ketika interval selesai.
 - Dukungan getaran dan Screen Wake Lock pada browser yang kompatibel.
@@ -66,6 +67,9 @@ Tidak diperlukan environment variable.
 ├── index.html
 ├── styles.css
 ├── app.js
+├── audio/
+│   ├── beep.wav
+│   └── finish.wav
 ├── manifest.webmanifest
 └── vercel.json
 ```

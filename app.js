@@ -4,7 +4,8 @@ const ui = {
   timer: $("#timer"), digits: $("#digits"), progress: $("#progress"), statusText: $("#statusText"),
   durationValue: $("#durationValue"), minus: $("#minus"), plus: $("#plus"), start: $("#start"),
   startText: $("#startText"), reset: $("#reset"), sound: $("#soundToggle"), light: $("#lightToggle"),
-  soundState: $("#soundState"), lightState: $("#lightState"), timesUp: $("#timesUp"), again: $("#again")
+  soundState: $("#soundState"), lightState: $("#lightState"), timesUp: $("#timesUp"), again: $("#again"),
+  beepAudio: $("#beepAudio"), finishAudio: $("#finishAudio")
 };
 
 const state = {
@@ -39,10 +40,10 @@ function beepRate(seconds) {
 function ensureAudio() {
   if (!state.sound) return;
   state.audio ||= new (window.AudioContext || window.webkitAudioContext)();
-  if (state.audio.state === "suspended") state.audio.resume();
+  if (state.audio.state === "suspended") state.audio.resume().catch(() => {});
 }
 
-function beep(long = false) {
+function oscillatorFallback(long = false) {
   if (!state.sound || !state.audio) return;
   const now = state.audio.currentTime;
   const oscillator = state.audio.createOscillator();
@@ -56,6 +57,34 @@ function beep(long = false) {
   oscillator.connect(gain).connect(state.audio.destination);
   oscillator.start(now);
   oscillator.stop(now + (long ? .7 : .09));
+}
+
+function unlockFileAudio() {
+  if (!state.sound) return Promise.resolve();
+  ensureAudio();
+  const attempts = [ui.beepAudio, ui.finishAudio].map((audio) => {
+    audio.volume = .01;
+    const attempt = audio.play();
+    return Promise.resolve(attempt).then(() => {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = 1;
+    }).catch(() => { audio.volume = 1; });
+  });
+  return Promise.allSettled(attempts);
+}
+
+function beep(long = false) {
+  if (!state.sound) return;
+  const audio = long ? ui.finishAudio : ui.beepAudio;
+  audio.pause();
+  audio.currentTime = 0;
+  audio.volume = 1;
+  const attempt = audio.play();
+  if (attempt) attempt.catch(() => {
+    ensureAudio();
+    oscillatorFallback(long);
+  });
 }
 
 async function requestWakeLock() {
@@ -107,8 +136,8 @@ function tick(now) {
   state.raf = requestAnimationFrame(tick);
 }
 
-function start() {
-  ensureAudio();
+async function start() {
+  await unlockFileAudio();
   state.running = true;
   state.endAt = performance.now() + state.remaining * 1000;
   state.nextBeepAt = performance.now();
@@ -167,7 +196,7 @@ ui.plus.addEventListener("click", () => changeDuration(5));
 ui.again.addEventListener("click", reset);
 ui.sound.addEventListener("click", () => {
   state.sound = !state.sound;
-  if (state.sound) { ensureAudio(); beep(); }
+  if (state.sound) unlockFileAudio().then(() => beep());
   updateToggle(ui.sound, ui.soundState, "set30-sound", state.sound);
 });
 ui.light.addEventListener("click", () => {
