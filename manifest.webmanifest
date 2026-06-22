@@ -1,0 +1,10 @@
+{
+  "name": "SET/30 Workout Timer",
+  "short_name": "SET/30",
+  "description": "Timer interval olahraga yang besar dan mudah dilihat.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#171713",
+  "theme_color": "#171713",
+  "orientation": "any"
+}
