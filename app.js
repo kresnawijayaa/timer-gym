@@ -109,6 +109,7 @@ function render(seconds = state.remaining) {
   const shown = Math.max(0, Math.ceil(seconds));
   const phase = state.running ? phaseFor(shown) : "idle";
   ui.digits.value = String(shown).padStart(shown < 10 ? 2 : 1, "0");
+  ui.digits.dataset.digits = ui.digits.value.length;
   ui.digits.setAttribute("aria-label", `${shown} detik`);
   ui.progress.style.transform = `scaleY(${Math.max(0, seconds / state.duration)})`;
   ui.timer.dataset.phase = phase;

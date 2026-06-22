@@ -251,6 +251,24 @@ button:focus-visible {
 
 @keyframes marquee { to { transform: translateX(-33.333%); } }
 
+@media (orientation: portrait) and (max-width: 42.99rem) {
+  .timer {
+    gap: clamp(.55rem, 1.5vh, .85rem);
+  }
+
+  .digits {
+    font-size: min(80vw, 43dvh);
+    line-height: .76;
+  }
+
+  .digits[data-digits="3"] {
+    font-size: min(61vw, 36dvh);
+  }
+
+  .eyebrow { margin-bottom: .45rem; }
+  .unit { margin-top: -.55rem; }
+}
+
 @media (min-width: 43rem) {
   .timer { max-width: 48rem; margin-inline: auto; padding-inline: 2rem; box-shadow: 0 0 0 1px var(--line); }
   body { background: #0c0c0a; }
